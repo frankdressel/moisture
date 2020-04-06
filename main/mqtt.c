@@ -32,7 +32,10 @@ static void moisture_measurement_handler(void* handler_args, esp_event_base_t ba
     ESP_LOGI(TAG, "Hallo");
     char *data = (char*) event_data;
 
-    esp_mqtt_client_publish(client, "test", data, 0, 1, 0);
+    char topic[256] = {0};
+    sprintf(topic, "%s/%d", CONFIG_TOPIC, CONFIG_SENSORID);
+    ESP_LOGI(TAG, "Topic %s", topic);
+    esp_mqtt_client_publish(client, "moisture/1", data, 0, 1, 0);
     ESP_LOGI(TAG, "handling %s:%s, iteration %s", base, "TASK_ITERATION_EVENT", data);
 }
 
@@ -43,7 +46,9 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
     switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-            msg_id = esp_mqtt_client_publish(client, "/topic/test", "data_3", 0, 1, 0);
+            char msg[1024] = {0};
+            sprintf(msg, "Sensor activated: %d", CONFIG_SENSORID);
+            msg_id = esp_mqtt_client_publish(client, CONFIG_TOPIC, msg, 0, 1, 0);
             ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
             ESP_ERROR_CHECK(esp_event_handler_register_with(moisture_measurement_eventloop, MOISTURE_MEASUREMENT_EVENTS, MOISTURE_MEASUREMENT_EVENT, moisture_measurement_handler, moisture_measurement_eventloop));

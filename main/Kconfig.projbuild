@@ -35,4 +35,16 @@ menu "Moisture"
         default ""
         help
             The password for the MQTT_USER
+
+    config TOPIC
+        string "MQTT topic"
+        default "moisture"
+        help
+            The topic, where the messages are sent to
+
+    config SENSORID
+        int "The id of the sensor"
+        default 1
+        help
+            The id of the sensor as numerical value
 endmenu
