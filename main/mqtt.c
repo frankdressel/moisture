@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 #include "esp_wifi.h"
 #include "esp_system.h"
@@ -29,25 +30,27 @@ extern const uint8_t certificate_pem_end[] asm("_binary_certificate_pem_end");
 static esp_mqtt_client_handle_t client;
 
 static void moisture_measurement_handler(void* handler_args, esp_event_base_t base, int32_t id, void* event_data) {
-    ESP_LOGI(TAG, "Hallo");
     char *data = (char*) event_data;
 
-    char topic[256] = {0};
-    sprintf(topic, "%s/%d", CONFIG_TOPIC, CONFIG_SENSORID);
-    ESP_LOGI(TAG, "Topic %s", topic);
-    esp_mqtt_client_publish(client, "moisture/1", data, 0, 1, 0);
-    ESP_LOGI(TAG, "handling %s:%s, iteration %s", base, "TASK_ITERATION_EVENT", data);
+    char *msg = calloc(sizeof(data) + 20 + sizeof(CONFIG_SENSORID), sizeof(char));
+    sprintf(msg, "{\"data\": %s, \"id\": \"%s\"}", data, CONFIG_SENSORID);
+
+    char *topic = calloc(sizeof(CONFIG_TOPIC) + 1 + sizeof(CONFIG_SENSORID), sizeof(char));
+    sprintf(topic, "%s/%s", CONFIG_TOPIC, CONFIG_SENSORID);
+
+    esp_mqtt_client_publish(client, topic, msg, 0, 1, 0);
+
+    free(topic);
+    free(msg);
 }
 
 static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
-    client = event->client;
     int msg_id;
-    // your_context_t *context = event->context;
     switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
             char msg[1024] = {0};
-            sprintf(msg, "Sensor activated: %d", CONFIG_SENSORID);
+            sprintf(msg, "Sensor activated: %s", CONFIG_SENSORID);
             msg_id = esp_mqtt_client_publish(client, CONFIG_TOPIC, msg, 0, 1, 0);
             ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
@@ -90,7 +93,7 @@ static void mqtt_init(void) {
     };
     ESP_LOGI(TAG, "Sending mqtt message with user %s, password %s to %s", CONFIG_MQTT_USER, CONFIG_MQTT_PASS, CONFIG_BROKER_URL);
 
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+    client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, client);
     esp_mqtt_client_start(client);
 }

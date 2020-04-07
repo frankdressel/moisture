@@ -40,11 +40,18 @@ menu "Moisture"
         string "MQTT topic"
         default "moisture"
         help
-            The topic, where the messages are sent to
+            The topic, where the messages are sent to.
 
     config SENSORID
-        int "The id of the sensor"
-        default 1
+        string "The id of the sensor"
+        default "1"
         help
-            The id of the sensor as numerical value
+            The id of the sensor.
+
+    config MEASUREMENT_DELAY
+        int "Waiting time between measurements"
+        default 1000
+        help
+            Waiting time between measurements in seconds.
+
 endmenu

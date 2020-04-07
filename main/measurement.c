@@ -63,7 +63,7 @@ static void application_task(void* args) {
 
         printf("ADC%d CH%d Raw: %d\t\n", unit, channel, adc_reading);
         ESP_ERROR_CHECK(esp_event_post_to(moisture_measurement_eventloop, MOISTURE_MEASUREMENT_EVENTS, MOISTURE_MEASUREMENT_EVENT, &voltage, sizeof(voltage), portMAX_DELAY));
-        vTaskDelay(1000);
+        vTaskDelay(CONFIG_MEASUREMENT_DELAY);
     }
 }
 
