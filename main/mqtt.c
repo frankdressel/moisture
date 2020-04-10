@@ -66,8 +66,6 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event) {
             break;
         case MQTT_EVENT_DATA:
             ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-            printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-            printf("DATA=%.*s\r\n", event->data_len, event->data);
             break;
         case MQTT_EVENT_ERROR:
             ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
@@ -91,9 +89,10 @@ static void mqtt_init(void) {
 	.password = CONFIG_MQTT_PASS,
         .cert_pem = (const char *)certificate_pem_start
     };
-    ESP_LOGI(TAG, "Sending mqtt message with user %s, password %s to %s", CONFIG_MQTT_USER, CONFIG_MQTT_PASS, CONFIG_BROKER_URL);
 
     client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, client);
     esp_mqtt_client_start(client);
+
+    ESP_LOGI(TAG, "MQTT connectionfor %s made", CONFIG_SENSORID);
 }

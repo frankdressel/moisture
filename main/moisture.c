@@ -10,6 +10,7 @@
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_sleep.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
 #include <nvs_flash.h>
@@ -18,6 +19,15 @@
 #include "mqtt.c"
 #include "events.h"
 #include "measurement.c"
+
+static void deep_sleep_task(void* args) {
+    while(1) {
+        esp_sleep_enable_timer_wakeup(CONFIG_SLEEP_PERIODE * 1000);
+        vTaskDelay(CONFIG_MEASUREMENT_PERIODE/portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "Entering deep sleep");
+        esp_deep_sleep_start();
+    }
+}
 
 void app_main(void) {
     esp_err_t ret = nvs_flash_init();
@@ -44,4 +54,6 @@ void app_main(void) {
     mqtt_init();
 
     measurement_init();
+
+    xTaskCreate(deep_sleep_task, "deep_sleep_task", 1024, NULL, uxTaskPriorityGet(NULL), NULL);
 }
