@@ -48,21 +48,9 @@ menu "Moisture"
         help
             The id of the sensor.
 
-    config MEASUREMENT_DELAY
-        int "Waiting time between measurements"
-        default 1000
-        help
-            Waiting time between measurements in seconds.
-
-    config MEASUREMENT_PERIODE
-        int "Time in milli seconds, during which measurements are performed"
-        default 2500
-        help
-            Time in milli seconds, during which measurements are performed"
-
     config SLEEP_PERIODE
-        int "Time in milli seconds, during which the device is in sleep mode"
-        default 5000
+        int "Time in seconds, during which the device is in sleep mode"
+        default 5
         help
             Time in milli seconds, during which the device is in sleep mode
 endmenu
